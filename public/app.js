@@ -10,6 +10,7 @@ const completedCount = document.getElementById('completedCount');
 
 // State
 let todos = [];
+let editingId = null;
 
 // Fetch all todos
 async function fetchTodos() {
@@ -97,23 +98,82 @@ async function deleteTodo(id) {
     }
 }
 
+// Start editing a todo
+function startEdit(id) {
+    editingId = id;
+    renderTodos();
+}
+
+// Save edited todo
+async function saveEdit(id) {
+    const input = document.getElementById(`edit-input-${id}`);
+    const newText = input.value.trim();
+    
+    if (!newText) {
+        alert('Todo text cannot be empty');
+        return;
+    }
+    
+    try {
+        const response = await fetch(`${API_BASE}/${id}`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ text: newText }),
+        });
+        
+        if (response.ok) {
+            const updatedTodo = await response.json();
+            const index = todos.findIndex(t => t.id === id);
+            if (index !== -1) {
+                todos[index] = updatedTodo;
+                editingId = null;
+                renderTodos();
+            }
+        } else {
+            alert('Failed to update todo');
+        }
+    } catch (error) {
+        console.error('Error updating todo:', error);
+        alert('Failed to update todo');
+    }
+}
+
+// Cancel editing
+function cancelEdit() {
+    editingId = null;
+    renderTodos();
+}
+
 // Render todos to the DOM
 function renderTodos() {
     if (todos.length === 0) {
         todoList.innerHTML = '<div class="empty-state">No todos yet. Add one above!</div>';
     } else {
-        todoList.innerHTML = todos.map(todo => `
-            <div class="todo-item ${todo.completed ? 'completed' : ''}">
-                <input 
-                    type="checkbox" 
-                    class="todo-checkbox" 
-                    ${todo.completed ? 'checked' : ''} 
-                    onchange="toggleTodo(${todo.id})"
-                />
-                <span class="todo-text">${escapeHtml(todo.text)}</span>
-                <button class="delete-btn" onclick="deleteTodo(${todo.id})">Delete</button>
-            </div>
-        `).join('');
+        todoList.innerHTML = todos.map(todo => {
+            const isEditing = editingId === todo.id;
+            return `
+                <div class="todo-item ${todo.completed ? 'completed' : ''}">
+                    <input 
+                        type="checkbox" 
+                        class="todo-checkbox" 
+                        ${todo.completed ? 'checked' : ''} 
+                        onchange="toggleTodo(${todo.id})"
+                    />
+                    ${isEditing ? 
+                        `<input type="text" id="edit-input-${todo.id}" class="edit-input" value="${escapeHtml(todo.text)}" />` :
+                        `<span class="todo-text">${escapeHtml(todo.text)}</span>`
+                    }
+                    ${isEditing ? 
+                        `<button class="save-btn" onclick="saveEdit(${todo.id})">Save</button>
+                         <button class="cancel-btn" onclick="cancelEdit()">Cancel</button>` :
+                        `<button class="edit-btn" onclick="startEdit(${todo.id})">Edit</button>
+                         <button class="delete-btn" onclick="deleteTodo(${todo.id})">Delete</button>`
+                    }
+                </div>
+            `;
+        }).join('');
     }
     
     updateStats();

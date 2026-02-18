@@ -111,6 +111,59 @@ h1 {
     color: #333;
 }
 
+.edit-input {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+.edit-btn {
+    background: #ffa726;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.2s;
+}
+
+.edit-btn:hover {
+    background: #fb8c00;
+}
+
+.save-btn {
+    background: #4caf50;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.2s;
+}
+
+.save-btn:hover {
+    background: #45a049;
+}
+
+.cancel-btn {
+    background: #9e9e9e;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.2s;
+}
+
+.cancel-btn:hover {
+    background: #757575;
+}
+
 .delete-btn {
     background: #ff4757;
     color: white;
